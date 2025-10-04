@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VR Project Detail</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+            cursor: none;
+        }
+        body.no-scroll {
+            overflow: hidden;
+        }
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            color: #1a202c;
+        }
+        ul {
+            padding-left: 1.5rem;
+        }
+        .project-hero {
+            background: linear-gradient(to right, #3b82f6, #6366f1);
+            padding: 6rem 2rem;
+            color: white;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .project-hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+        .project-hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+        .main-content-card {
+            margin-top: -3rem;
+            position: relative;
+            z-index: 20;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        #cursor-dot {
+            position: fixed;
+            width: 16px;
+            height: 16px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease-out, background-color 0.2s ease-out, border-color 0.2s ease-out;
+            display: none;
+            border: 1px solid rgba(0,0,0,0.2);
+        }
+        
+        /* CSS FOR THE IMAGE MODAL */
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+            cursor: pointer; /* Indicates the background is clickable */
+        }
+        .image-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .image-modal-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            cursor: default; /* The image itself is not clickable to close */
+        }
+        .image-modal-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <section class="project-hero">
+        <h1 id="project-detail-title">Soul Link</h1>
+        <p class="mt-4">Revolutionizing industrial safety training with immersive virtual environments.</p>
+    </section>
+
+    <main class="max-w-6xl mx-auto bg-white p-8 rounded-lg shadow-xl flex-grow main-content-card">
+        <header class="mb-8 flex justify-between items-center">
+            <h2 class="text-3xl font-bold text-gray-800">Project Overview</h2>
+            <a href="index.html" class="inline-block bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition shadow-md">← Back to Portfolio</a>
+        </header>
+
+        <div class="mb-8">
+            <img src="https://placehold.co/800x450/4CAF50/ffffff?text=Main+VR+Screenshot" alt="Main VR Project Screenshot" class="w-full rounded-lg shadow-md mb-6">
+            <p class="text-lg text-gray-700 mb-6" id="project-description-text">
+                This project involved the design and development of a comprehensive Virtual Reality training simulation aimed at enhancing industrial safety protocols. By creating a fully interactive and realistic virtual environment, users can practice critical procedures and respond to various hazardous scenarios without any real-world risk. The simulation provides immediate feedback, allowing for a deep understanding of safety measures and emergency responses, significantly improving retention and preparedness.
+            </p>
+
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 mt-8">Project Gallery</h2>
+            <div id="project-gallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <img src="https://placehold.co/400x300/e67e22/ffffff?text=Gallery+Image+1" alt="VR Gallery 1" class="w-full h-48 object-cover rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-200 cursor-pointer">
+                <img src="https://placehold.co/400x300/9b59b6/ffffff?text=Gallery+Image+2" alt="VR Gallery 2" class="w-full h-48 object-cover rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-200 cursor-pointer">
+                <img src="https://placehold.co/400x300/34495e/ffffff?text=Gallery+Image+3" alt="VR Gallery 3" class="w-full h-48 object-cover rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-200 cursor-pointer">
+                <img src="https://placehold.co/400x300/1abc9c/ffffff?text=Gallery+Image+4" alt="VR Gallery 4" class="w-full h-48 object-cover rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-200 cursor-pointer">
+                <img src="https://placehold.co/400x300/d35400/ffffff?text=Gallery+Image+5" alt="VR Gallery 5" class="w-full h-48 object-cover rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-200 cursor-pointer">
+            </div>
+
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 mt-8">Key Features</h2>
+            <ul class="list-disc list-inside text-lg text-gray-700 mb-6 space-y-2" id="key-features-list">
+                <li>**Immersive Scenario:** Recreated a high-fidelity industrial environment, complete with interactive machinery and realistic soundscapes, to simulate real-world conditions.</li>
+                <li>**Interactive Elements:** Implemented intuitive controls for users to manipulate tools, operate heavy machinery, and navigate complex spaces, fostering muscle memory and practical skills.</li>
+                <li>**Performance Optimization:** Achieved smooth frame rates and optimized asset loading to ensure a comfortable and seamless VR experience, minimizing motion sickness.</li>
+                <li>**Real-time Feedback System:** Integrated a system that provides instant visual and auditory feedback on user actions, highlighting correct procedures and identifying mistakes for immediate correction.</li>
+                <li>**Multi-scenario Training:** Developed modules for various emergency situations, including fire safety, equipment malfunction, and chemical spill response, offering comprehensive training.</li>
+            </ul>
+
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 mt-8">Technology Stack</h2>
+            <ul class="list-disc list-inside text-lg text-gray-700 mb-6 space-y-2" id="tech-stack-list">
+                <li>**Engine:** Unity 3D (primary), leveraging its robust VR development tools.</li>
+                <li>**Programming Language:** C# for all scripting and logic implementation.</li>
+                <li>**SDKs:** Oculus SDK and SteamVR SDK for broad hardware compatibility.</li>
+                <li>**3D Modeling:** Utilized Blender and Maya for creating high-fidelity assets and environmental details.</li>
+                <li>**Version Control:** Git for collaborative development and project management.</li>
+            </ul>
+
+            <p class="text-lg text-gray-700 mt-6" id="project-conclusion-text">
+                Through this project, my goal was to significantly enhance user understanding of complex machinery and emergency protocols, leading to a safer working environment. The feedback received was overwhelmingly positive, with early trials showing a **30% reduction in training errors** and a noticeable increase in trainee confidence and retention. This project stands as a testament to the power of VR in transforming traditional training methodologies.
+            </p>
+        </div>
+    </main>
+
+    <footer class="mt-8 py-8 px-4 bg-gray-900 text-white text-center">
+        <p>&copy; 2024 Charan Raj. All rights reserved.</p>
+    </footer>
+    
+    <div id="image-modal" class="image-modal">
+        <div class="image-modal-content">
+            <img src="" alt="Full-size Project Image" id="modal-image-content">
+        </div>
+    </div>
+
+    <div id="cursor-dot"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // JAVASCRIPT LOGIC FOR THE IMAGE MODAL
+            const imageModal = document.getElementById('image-modal');
+            const modalImageContent = document.getElementById('modal-image-content');
+            const galleryImages = document.querySelectorAll('#project-gallery img');
+
+            const openImageModal = (src) => {
+                modalImageContent.src = src;
+                imageModal.classList.add('active');
+                document.body.classList.add('no-scroll');
+            }
+
+            const closeImageModal = () => {
+                imageModal.classList.remove('active');
+                document.body.classList.remove('no-scroll');
+            }
+
+            galleryImages.forEach(img => {
+                img.addEventListener('click', () => {
+                    openImageModal(img.src);
+                });
+            });
+
+            // Click the background overlay to close
+            imageModal.addEventListener('click', (e) => {
+                // If the click is on the modal background itself (not the content inside it)
+                if (e.target === imageModal) {
+                    closeImageModal();
+                }
+            });
+
+            // Press the 'Escape' key to close
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && imageModal.classList.contains('active')) {
+                    closeImageModal();
+                }
+            });
+
+            // Custom Cursor Logic
+            const cursorDot = document.getElementById('cursor-dot');
+            document.addEventListener('mousemove', (e) => {
+                cursorDot.style.left = e.clientX + 'px';
+                cursorDot.style.top = e.clientY + 'px';
+                cursorDot.style.display = 'block';
+
+                let targetElement = e.target;
+                let dotColor = '#3b82f6';
+                let dotBorderColor = 'rgba(0,0,0,0.2)';
+
+                if (targetElement.closest('.project-hero')) {
+                    dotColor = '#ffffff';
+                } else if (targetElement.closest('.main-content-card')) {
+                    dotColor = '#1a202c';
+                    dotBorderColor = 'rgba(255,255,255,0.5)';
+                } else if (targetElement.closest('footer')) {
+                    dotColor = '#ffffff';
+                }
+                cursorDot.style.backgroundColor = dotColor;
+                cursorDot.style.borderColor = dotBorderColor;
+            });
+
+            document.addEventListener('mouseenter', () => {
+                cursorDot.style.display = 'block';
+            });
+
+            document.addEventListener('mouseleave', () => {
+                cursorDot.style.display = 'none';
+            });
+        });
+        
+    </script>
+</body>
+</html>

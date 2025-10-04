@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charan Raj Portfolio</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            cursor: none;
+            background: #ffffff;
+        }
+
+        body.no-scroll {
+            overflow: hidden;
+            height: 100%;
+        }
+
+        /* Intro overlay styles */
+        #intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 1;
+            transition: opacity 0.8s ease-out;
+        }
+
+        #intro-overlay video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(1);
+        }
+
+        #video-overlay video {
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        #video-overlay {
+            transition: opacity 0.3s ease;
+        }
+
+
+        /* Main content styles */
+        #main-content {
+            min-height: 100vh;
+            background-color: #f7f7f7;
+            color: #333;
+            opacity: 0; /* Initially hidden */
+            transition: opacity 0.8s ease-out;
+
+        }
+        html.is-restoring #main-content {
+            opacity: 0;
+        }
+        .initial-hidden
+        {
+            opacity: 0;
+        }
+
+        /* Animation for hero section elements */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fadeInUp {
+            animation: fadeInUp 1s ease-out forwards;
+        }
+        .animate-delay-1s { animation-delay: 0.5s; }
+        .animate-delay-2s { animation-delay: 1s; }
+
+        /* Custom styles for active tab button */
+        .portfolio-tab-button.active-tab {
+            background-color: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .portfolio-tab-button {
+            background-color: #ffffff;
+            color: #3b82f6;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Project Card Overlay Styles */
+        .project-card-overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1.5rem;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            pointer-events: none;
+            flex-direction: column;
+            color: white;
+        }
+
+        .project-card:hover .project-card-overlay {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+        .project-card:hover:not(.no-hover-zoom) img,
+        .project-card:hover:not(.no-hover-zoom) video,
+        .project-card:hover:not(.no-hover-zoom) iframe {
+            transform: scale(1.05);
+        }
+        .project-card img,
+        .project-card video,
+        .project-card iframe {
+            transition: transform 0.3s ease-out;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .project-card-media-container {
+             width: 100%;
+             overflow: hidden;
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #contact {
+            min-height: auto;
+            padding-top: 6rem;
+            padding-bottom: 6rem;
+        }
+
+        /* Cursor Dot Styles */
+        #cursor-dot {
+            position: fixed;
+            width: 18px;
+            height: 18px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease-out, background-color 0.2s ease-out, border-color 0.2s ease-out;
+            display: none;
+            border: 1px solid rgba(0,0,0,0.2);
+        }
+
+        /* Graphic Design Modal Styles */
+        .graphic-design-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+        }
+        .graphic-design-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .graphic-design-modal-content img {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            transform: scale(1);
+            transition: transform 0.1s ease-out;
+        }
+    </style>
+    <script>
+        // Check if the 'introPlayed' flag is set in sessionStorage
+        if (sessionStorage.getItem('introPlayed') === 'true') {
+            // If so, add a class to the body tag immediately
+            document.body.classList.add('intro-skipped');
+        }
+        if (sessionStorage.getItem('scrollPosition')) {
+            document.documentElement.classList.add('is-restoring');
+        }
+    </script>
+</head>
+<body>
+
+    <div id="intro-overlay">
+        <video id="intro-video" class="absolute inset-0 w-full h-full object-cover" autoplay muted playsinline preload="auto">
+            <source src="intro2.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <div id="main-content">
+        <header id="main-header" class="fixed top-0 left-0 w-full bg-white bg-opacity-90 shadow-md py-5 px-7 z-50 flex justify-between items-center">
+            <div class="text-3xl font-bold text-gray-800">Charan Raj</div>
+            <nav>
+                <ul class="flex space-x-7">
+                    <li><a href="#about" class="text-lg text-gray-600 hover:text-blue-600 font-medium transition-colors">About</a></li>
+                    <li><a href="#portfolio" class="text-lg text-gray-600 hover:text-blue-600 font-medium transition-colors">Portfolio</a></li>
+                    <li><a href="#contact" class="text-lg text-gray-600 hover:text-blue-600 font-medium transition-colors">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <section id="hero" class="relative bg-gradient-to-r from-blue-500 to-indigo-600 text-white flex items-center justify-center px-4">
+            <div class="text-center max-w-4xl py-24">
+                <h2 class="text-6xl md:text-8xl font-extrabold leading-tight mb-5 animate-fadeInUp initial-hidden">Designing Tomorrow, Today.</h2>
+                <p class="text-xl md:text-2xl mb-9 animate-fadeInUp animate-delay-1s initial-hidden">Crafting intuitive and beautiful digital experiences for a seamless user journey.</p>
+                <a href="#portfolio" class="inline-block bg-white text-blue-600 px-9 py-5 rounded-full text-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 animate-fadeInUp animate-delay-2s initial-hidden">View My Work →</a>
+            </div>
+        </section>
+
+        <section id="about" class="py-24 px-4 bg-gray-50 text-gray-800">
+            <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-16">
+                <div class="md:w-1/3 flex justify-center flex-shrink-0">
+                    <img src="profile1.jpg" alt="Charan Raj" class="rounded-xl w-80 h-108 object-cover shadow-lg border-4 border-maroon-500">
+                </div>
+                <div class="md:w-2/3 text-center md:text-left">
+                    <h3 class="text-5xl font-bold mb-9">About Me</h3>
+                    <p class="text-xl leading-relaxed">
+                        I’m Charan Raj, a 3D designer, game developer, and VR/AR creator. I craft immersive digital experiences that blend creativity with technology. From detailed 3D models to interactive virtual worlds, my work brings ideas to life. I’ve developed projects ranging from virtual college tours to AI-driven companions. Passionate about innovation, I constantly explore new tools and techniques, aiming to create experiences that inspire, engage, and leave a lasting impact. I love pushing the boundaries of what’s possible in virtual and interactive design.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="portfolio" class="py-24 px-4 bg-white text-gray-800">
+            <div class="max-w-6xl mx-auto">
+                <h3 class="text-5xl font-bold text-center mb-14">My Work</h3>
+
+                <div class="flex flex-wrap justify-center gap-5 mb-14">
+                    <button class="portfolio-tab-button px-7 py-4 rounded-full font-medium transition-all duration-300 active-tab" data-domain="3d-modelling">3D Modelling</button>
+                    <button class="portfolio-tab-button px-7 py-4 rounded-full font-medium transition-all duration-300" data-domain="graphic-design">Graphic Design</button>
+                    <button class="portfolio-tab-button px-7 py-4 rounded-full font-medium transition-all duration-300" data-domain="virtual-reality">Virtual Reality</button>
+                    <button class="portfolio-tab-button px-7 py-4 rounded-full font-medium transition-all duration-300" data-domain="animation">Animation & Video</button>
+                </div>
+
+                <div id="3d-modelling-projects" class="portfolio-content grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative" style="width:500px; height:300px;">
+                        <div class="project-card-media-container w-full h-full">
+                        <iframe title="Rajalakshmi Engineering College Logo" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/7fe45441e9724fb1aa9144c5aa1c5deb/embed"> </iframe>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative" style="width:500px; height:300px;">
+                        <div class="project-card-media-container w-full h-full">
+                        <iframe title="Rajalakshmi Engineering College Old Logo" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/a4f68067feed49cfbd336238a29a075e/embed"> </iframe>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative" style="width:500px; height:300px;">
+                        <div class="project-card-media-container w-full h-full">
+                        <iframe title="Architectural Visualization 3" class="w-full h-full rounded" src="https://sketchfab.com/models/b2303a552b444e5b8637fdf5169b41cb/embed" frameborder="0" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative" style="width:500px; height:300px;">
+                        <div class="project-card-media-container w-full h-full">
+                        <iframe title="Character Design" class="w-full h-full rounded" src="https://sketchfab.com/models/b2303a552b444e5b8637fdf5169b41cb/embed" frameborder="0" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+
+               <div id="graphic-design-projects" class="portfolio-content hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative graphic-design-item clickable-tile">
+                        <div class="project-card-media-container w-full h-80">
+                            <img src="Auraverse.png" alt="Auraverse" class="w-full h-full object-cover rounded-md">
+                        </div>
+                        <div class="project-card-overlay">
+                            <div>
+                                <h4 class="text-2xl font-semibold mb-2">Brand Logo</h4>
+                                <p class="text-sm mb-4">Created a comprehensive brand logo for my own startup.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative graphic-design-item clickable-tile">
+                        <div class="project-card-media-container w-full h-80">
+                            <img src="Envy.png" alt="Envvy" class="w-full h-full object-cover rounded-md">
+                        </div>
+                        <div class="project-card-overlay">
+                            <div>
+                                <h4 class="text-2xl font-semibold mb-2">Personal Branding</h4>
+                                <p class="text-sm mb-4">Created a logo to organise my design journey.</p>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative graphic-design-item clickable-tile">
+                        <div class="project-card-media-container w-full h-80">
+                            <img src="FathersDay1.png" alt="Design1" class="w-full h-full object-cover rounded-md">
+                        </div>
+                        <div class="project-card-overlay">
+                            <div>
+                                <h4 class="text-2xl font-semibold mb-2">Fathers Day</h4>
+                                <p class="text-sm mb-4">Celebrating the heroes who guide, protect, and inspire us.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative graphic-design-item clickable-tile">
+                        <div class="project-card-media-container w-full h-80">
+                            <img src="GDD_Poster.png" alt="Design2" class="w-full h-full object-cover rounded-md">
+                        </div>
+                        <div class="project-card-overlay">
+                            <div>
+                                <h4 class="text-2xl font-semibold mb-2">Game Poster</h4>
+                                <p class="text-sm mb-4">Created a poster to showcase our Horror game</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative graphic-design-item clickable-tile">
+                        <div class="project-card-media-container w-full h-80">
+                            <img src="Front.png" alt="Design3" class="w-full h-full object-cover rounded-md">
+                        </div>
+                        <div class="project-card-overlay">
+                            <div>
+                                <h4 class="text-2xl font-semibold mb-2">CD Cover</h4>
+                                <p class="text-sm mb-4">Created a CD cover poster for the animation video - The Haunted Hostel</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative graphic-design-item clickable-tile">
+                        <div class="project-card-media-container w-full h-80">
+                            <img src="Chiyaan63.jpg" alt="Design4" class="w-full h-full object-cover rounded-md">
+                        </div>
+                        <div class="project-card-overlay">
+                            <div>
+                                <h4 class="text-2xl font-semibold mb-2">Movie Poster</h4>
+                                <p class="text-sm mb-4">Created a Fan Made poster for the announcement of Chiyaan 63</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative graphic-design-item clickable-tile">
+                        <div class="project-card-media-container w-full h-80">
+                            <img src="Christmas.png" alt="Design5" class="w-full h-full object-cover rounded-md">
+                        </div>
+                        <div class="project-card-overlay">
+                            <div>
+                                <h4 class="text-2xl font-semibold mb-2">Festival Poster</h4>
+                                <p class="text-sm mb-4">Created a poster to celebrate Christmas</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative graphic-design-item clickable-tile">
+                        <div class="project-card-media-container w-full h-80">
+                            <img src="EarPiercing11.jpg" alt="Design6" class="w-full h-full object-cover rounded-md">
+                        </div>
+                        <div class="project-card-overlay">
+                            <div>
+                                <h4 class="text-2xl font-semibold mb-2">Album Cover</h4>
+                                <p class="text-sm mb-4">Created a album front page psoter for an ear piercing ceremony</p>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative graphic-design-item clickable-tile">
+                        <div class="project-card-media-container w-full h-80">
+                            <img src="Expo.png" alt="Design7" class="w-full h-full object-cover rounded-md">
+                        </div>
+                        <div class="project-card-overlay">
+                            <div>
+                                <h4 class="text-2xl font-semibold mb-2">Game Expo Poster</h4>
+                                <p class="text-sm mb-4">Designed a poster containing a collage of all poster for a game expo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="virtual-reality-projects" class="portfolio-content hidden grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative">
+                        <div class="project-card-media-container w-full h-80"><img src="3D_Output.png" alt="VR Project 1" class="w-full h-full object-cover"></div>
+                        <div class="project-card-overlay">
+                            <h4 class="text-2xl font-semibold mb-2">Meta Campus: Project REC</h4>
+                            <p class="text-sm mb-4">A Virtual Reality walkaround of the college campus</p>
+                            <a href="details_ProjectREC.html" class="text-blue-300 hover:underline font-medium block mt-2">View Project Details →</a>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative">
+                        <div class="project-card-media-container w-full h-80"><img src="Soul Link.png" alt="VR Project 2" class="w-full h-full object-cover"></div>
+                        <div class="project-card-overlay">
+                             <h4 class="text-2xl font-semibold mb-2">Soul Link</h4>
+                            <p class="text-sm mb-4">Designed a VR based AI personal assistant using ConvAI</p>
+                            <a href="details_SoulLink.html" class="text-blue-300 hover:underline font-medium block mt-2">View Project Details →</a>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative">
+                        <div class="project-card-media-container w-full h-80"><img src="https://placehold.co/600x400/2196F3/ffffff?text=Echos+of+Legacy" alt="VR Project 2" class="w-full h-full object-cover"></div>
+                        <div class="project-card-overlay">
+                             <h4 class="text-2xl font-semibold mb-2">Echos Of Legacy</h4>
+                            <p class="text-sm mb-4">Brought back a former leader and mocked his voice in Virtual Reality</p>
+                            <a href="details_Echo.html" class="text-blue-300 hover:underline font-medium block mt-2">View Project Details →</a>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative">
+                        <div class="project-card-media-container w-full h-80"><img src="https://placehold.co/600x400/2196F3/ffffff?text=Safety" alt="VR Project 2" class="w-full h-full object-cover"></div>
+                        <div class="project-card-overlay">
+                             <h4 class="text-2xl font-semibold mb-2">Industrial Safety</h4>
+                            <p class="text-sm mb-4">Designed an application to train industrial workers on the safety precautions</p>
+                            <a href="details_Safety.html" class="text-blue-300 hover:underline font-medium block mt-2">View Project Details →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="animation-projects" class="portfolio-content hidden grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                        <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                            <div class="project-card-media-container w-full h-80 relative">
+                                <video class="custom-video w-full h-full object-cover" playsinline>
+                                    <source src="Game_Expo.mp4" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="p-4">
+                                <h4 class="text-2xl font-semibold mb-2 text-gray-800">Game Expo</h4>
+                                <p class="text-sm text-gray-700">Created a short animation video...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                        <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                            <div class="project-card-media-container w-full h-80 relative">
+                                <video class="custom-video w-full h-full object-cover" playsinline>
+                                    <source src="Mutrum_SFX.mp4" type="video/mp4">
+                                </video>
+                                
+                            </div>
+                            <div class="p-4">
+                                <h4 class="text-2xl font-semibold mb-2 text-gray-800">Short Film Teaser</h4>
+                                <p class="text-sm text-gray-700">Created a short teaser video for our short film</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                        <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                            <div class="project-card-media-container w-full h-80 relative">
+                                <video class="custom-video w-full h-full object-cover" playsinline>
+                                    <source src="Mutrum.mp4" type="video/mp4">
+                                </video>                                
+                            </div>
+                            <div class="p-4">
+                                <h4 class="text-2xl font-semibold mb-2 text-gray-800">Short Film Teaser (Celebration Version) </h4>
+                                <p class="text-sm text-gray-700">Created a short teaser video for our short film with contrast audio effects</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                        <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                            <div class="project-card-media-container w-full h-80 relative">
+                                <video class="custom-video w-full h-full object-cover" playsinline>
+                                    <source src="Pooja_Celebration_CSD.mp4" type="video/mp4">
+                                </video>                                
+                            </div>
+                            <div class="p-4">
+                                <h4 class="text-2xl font-semibold mb-2 text-gray-800">Ayudha Pooja Celebration</h4>
+                                <p class="text-sm text-gray-700">Edited the Pooja celebration video of our department</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                        <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                            <div class="project-card-media-container w-full h-80 relative">
+                                <video class="custom-video w-full h-full object-cover" playsinline>
+                                    <source src="Matram.mp4" type="video/mp4">
+                                </video>                               
+                            </div>
+                            <div class="p-4">
+                                <h4 class="text-2xl font-semibold mb-2 text-gray-800">Matram</h4>
+                                <p class="text-sm text-gray-700">Created a video to resemble the climax of our short film</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-24 px-4 bg-gray-800 text-white">
+            <div class="max-w-3xl mx-auto text-center">
+                <h3 class="text-5xl font-bold mb-9">Get In Touch</h3>
+                <p class="text-xl mb-9">Have a project in mind or just want to say hello? Feel free to reach out!</p>
+                <a href="https://mail.google.com/mail/?view=cm&to=chrnoffl@gmail.com"target="_blank" class="inline-block bg-blue-600 text-white px-9 py-5 rounded-full text-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">Email Me</a>
+                <div class="mt-14 flex justify-center space-x-7">
+                    <a href="https://www.linkedin.com/in/charan-raj-7857b4257/" target="_blank" class="bg-blue-700 hover:bg-blue-800 text-white w-14 h-14 flex items-center justify-center rounded-full shadow-md text-xl transition-colors duration-300" aria-label="LinkedIn"><img src="linkedin.webp" alt="LinkedIn Icon" class="w-11 h-11"></a>
+                    <a href="https://github.com/ChrnCj" target="_blank" class="bg-white-700 hover:bg-white-900 text-white w-14 h-14 flex items-center justify-center rounded-full shadow-md text-xl transition-colors duration-300" aria-label="GitHub"><img src="github.png" alt="GitHub Icon" class="w-9 h-9"></a>
+                    <a href="https://www.instagram.com/chrn_cj/" target="_blank" class="bg-pink-600 hover:bg-pink-700 text-white w-14 h-14 flex items-center justify-center rounded-full shadow-md text-xl transition-colors duration-300" aria-label="Instagram"><img src="ig.webp" alt="Instagram Icon" class="w-7 h-7"></a>
+                </div>
+            </div>
+        </section>
+
+        <footer class="py-8 px-4 bg-gray-900 text-white text-center">
+            <p>&copy; 2025 Charan Raj. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <div id="graphic-design-image-modal" class="graphic-design-modal">
+        <div class="graphic-design-modal-content">
+            <img src="" alt="Full-size Graphic Design Image" id="modal-graphic-design-image">
+        </div>
+    </div>
+
+    <!-- Video Overlay / Lightbox -->
+    <div id="video-overlay" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
+        <video id="overlay-video" class="max-w-full max-h-full" controls playsinline>
+            <source src="" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <button id="overlay-close" class="absolute top-4 right-4 text-white text-3xl font-bold">&times;</button>
+    </div>
+
+    <div id="cursor-dot"></div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Element References ---
+    const introOverlay = document.getElementById('intro-overlay');
+    const introVideo = document.getElementById('intro-video');
+    const mainContent = document.getElementById('main-content');
+    const portfolioTabButtons = document.querySelectorAll('.portfolio-tab-button');
+    const portfolioContentDivs = document.querySelectorAll('.portfolio-content');
+    const cursorDot = document.getElementById('cursor-dot');
+    const bodyElement = document.body;
+    const graphicDesignModal = document.getElementById('graphic-design-image-modal');
+    const modalGraphicDesignImage = document.getElementById('modal-graphic-design-image');
+    const heroAnimatedElements = document.querySelectorAll('#hero .animate-fadeInUp');
+
+    // ===== FIX: Select all detail links that point to any details page (works for details_Safety.html etc.)
+    const detailLinks = document.querySelectorAll('a[href*="details_"], a[href*="details"]');
+
+    // --- Overlay Player Elements ---
+    const videoOverlay = document.getElementById('video-overlay');
+    const overlayVideo = document.getElementById('overlay-video');
+    const overlayClose = document.getElementById('overlay-close');
+
+    // --- Core Functions ---
+    function showPortfolioDomain(domain) {
+        if (!domain) return;
+        portfolioTabButtons.forEach(btn => {
+            btn.classList.toggle('active-tab', btn.dataset.domain === domain);
+        });
+        portfolioContentDivs.forEach(div => {
+            div.classList.toggle('hidden', div.id !== `${domain}-projects`);
+        });
+        pauseAllVideos();
+    }
+
+    function showMainContentAndAnimate() {
+        mainContent.style.opacity = 1;
+        const startAnimationsOnTransitionEnd = (event) => {
+            if (event.propertyName === 'opacity' && event.target === mainContent) {
+                heroAnimatedElements.forEach(el => {
+                    el.style.animationPlayState = "running";
+                });
+                mainContent.removeEventListener('transitionend', startAnimationsOnTransitionEnd);
+            }
+        };
+        mainContent.addEventListener('transitionend', startAnimationsOnTransitionEnd);
+    }
+
+    function handleIntroEnd() {
+        sessionStorage.setItem("introPlayed", "true");
+        if (introOverlay) {
+            introOverlay.style.transition = "opacity 0.8s ease-out";
+            introOverlay.style.opacity = 0;
+            setTimeout(() => {
+                introOverlay.remove();
+                showMainContentAndAnimate();
+            }, 800);
+        } else {
+            showMainContentAndAnimate();
+        }
+    }
+
+    // --- Robust custom cursor: show immediately (center) then follow pointer ---
+    cursorDot.style.display = 'block';
+    cursorDot.style.left = (window.innerWidth / 2) + 'px';
+    cursorDot.style.top = (window.innerHeight / 2) + 'px';
+
+    function updateCursor(e) {
+        cursorDot.style.left = e.clientX + 'px';
+        cursorDot.style.top = e.clientY + 'px';
+        cursorDot.style.display = 'block';
+        // hide default cursor dynamically
+        bodyElement.style.cursor = 'none';
+
+        const target = e.target;
+        let dotColor = '#3b82f6';
+        let borderColor = 'rgba(0,0,0,0.2)';
+        if (target.closest('#hero') || target.closest('#contact') || target.closest('footer')) {
+            dotColor = '#ffffff';
+        } else if (target.closest('#about') || target.closest('#portfolio')) {
+            dotColor = '#1a202c';
+            borderColor = 'rgba(255,255,255,0.5)';
+        }
+        cursorDot.style.backgroundColor = dotColor;
+        cursorDot.style.borderColor = borderColor;
+    }
+    window.addEventListener('mousemove', updateCursor);
+    window.addEventListener('mouseover', () => { cursorDot.style.display = 'block'; bodyElement.style.cursor = 'none'; });
+    window.addEventListener('mouseout', (e) => {
+        // hide when leaving the window
+        if (!e.relatedTarget) {
+            cursorDot.style.display = 'none';
+            bodyElement.style.cursor = '';
+        }
+    });
+
+    // --- Initialization & Intro restore / tab+scroll restore ---
+    const played = sessionStorage.getItem("introPlayed");
+    const scrollPosition = sessionStorage.getItem('scrollPosition');
+    const activeTab = sessionStorage.getItem('activeTab');
+
+    // If user already played intro or we're returning from detail page, remove overlay
+    if (played === "true") {
+        introOverlay?.remove();
+
+        // Restore tab + scroll BEFORE running animations so the page doesn't "jump to top"
+        if (scrollPosition && activeTab) {
+            showPortfolioDomain(activeTab);
+            window.scrollTo(0, parseInt(scrollPosition, 10));
+            sessionStorage.removeItem('scrollPosition');
+            sessionStorage.removeItem('activeTab');
+            document.documentElement.classList.remove('is-restoring');
+        }
+
+        setTimeout(showMainContentAndAnimate, 100);
+    } else {
+        // play intro normally
+        mainContent.style.opacity = 0;
+        heroAnimatedElements.forEach(el => {
+            el.classList.add("initial-hidden");
+            el.style.animationPlayState = "paused";
+        });
+        introVideo?.addEventListener("ended", handleIntroEnd);
+        introVideo?.addEventListener("error", handleIntroEnd);
+        introVideo?.play().catch(() => {
+            setTimeout(handleIntroEnd, 1500);
+        });
+
+        // If scroll/tab restore data exists (user clicked a details link previously),
+        // restore after the intro finishes to avoid jumping during the overlay.
+        if (scrollPosition && activeTab) {
+            const restoreAfterIntro = () => {
+                showPortfolioDomain(activeTab);
+                window.scrollTo(0, parseInt(scrollPosition, 10));
+                sessionStorage.removeItem('scrollPosition');
+                sessionStorage.removeItem('activeTab');
+                document.documentElement.classList.remove('is-restoring');
+                introVideo.removeEventListener('ended', restoreAfterIntro);
+                introVideo.removeEventListener('error', restoreAfterIntro);
+            };
+            introVideo?.addEventListener('ended', restoreAfterIntro);
+            introVideo?.addEventListener('error', restoreAfterIntro);
+        }
+    }
+
+    // --- SAVE scroll BEFORE navigating to details pages (FIXED selector) ---
+    // This is the important fix: store main page scroll + current active tab before leaving
+    detailLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            sessionStorage.setItem('scrollPosition', window.scrollY.toString());
+            const currentActiveTab = document.querySelector('.portfolio-tab-button.active-tab');
+            if (currentActiveTab) {
+                sessionStorage.setItem('activeTab', currentActiveTab.dataset.domain);
+            }
+            // allow navigation to proceed normally
+        });
+    });
+
+    // --- Smooth Scroll ---
+    document.querySelectorAll('nav a[href^="#"], a[href^="#portfolio"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetElement = document.querySelector(this.getAttribute('href'));
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
+    // --- Portfolio Tabs ---
+    portfolioTabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            showPortfolioDomain(button.dataset.domain);
+        });
+    });
+
+    // --- Graphic Design Modal ---
+    document.querySelectorAll('.graphic-design-item.clickable-tile').forEach(tile => {
+        tile.addEventListener('click', () => {
+            const imageUrl = tile.querySelector('img').src;
+            modalGraphicDesignImage.src = imageUrl;
+            graphicDesignModal.classList.add('active');
+            bodyElement.classList.add('no-scroll');
+        });
+    });
+
+    graphicDesignModal?.addEventListener('click', (e) => {
+        if (e.target === graphicDesignModal) {
+            graphicDesignModal.classList.remove('active');
+            bodyElement.classList.remove('no-scroll');
+        }
+    });
+
+    // --- Video Play / Pause & Overlay ---
+    function pauseAllVideos() {
+        document.querySelectorAll('.custom-video').forEach(vid => {
+            if (!vid.paused) {
+                vid.pause();
+                const btn = vid.closest('.project-card')?.querySelector('.play-btn');
+                if (btn) btn.textContent = '▶';
+            }
+        });
+    }
+
+    const projectCards = document.querySelectorAll('.project-card');
+
+    projectCards.forEach(card => {
+        const video = card.querySelector('.custom-video');
+        const button = card.querySelector('.play-btn');
+
+        if (video) {
+            // Toggle play/pause on button
+            if (button) {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (video.paused) {
+                        pauseAllVideos();
+                        video.play();
+                        button.textContent = '⏸';
+                    } else {
+                        video.pause();
+                        button.textContent = '▶';
+                    }
+                });
+
+                // Reset icon on video end
+                video.addEventListener('ended', () => {
+                    button.textContent = '▶';
+                });
+            }
+
+            // Click on video opens overlay
+            video.addEventListener('click', () => {
+                // prefer source src then currentSrc
+                overlayVideo.src = video.querySelector('source')?.src || video.currentSrc || '';
+                videoOverlay.classList.remove('hidden');
+                overlayVideo.play().catch(()=>{});
+                pauseAllVideos();
+                bodyElement.classList.add('no-scroll'); // standardized class
+            });
+        }
+    });
+
+    // --- Overlay Controls ---
+    overlayClose.addEventListener('click', () => {
+        overlayVideo.pause();
+        overlayVideo.src = '';
+        videoOverlay.classList.add('hidden');
+        bodyElement.classList.remove('no-scroll');
+    });
+
+    videoOverlay.addEventListener('click', (e) => {
+        if (e.target === videoOverlay) {
+            overlayVideo.pause();
+            overlayVideo.src = '';
+            videoOverlay.classList.add('hidden');
+            bodyElement.classList.remove('no-scroll');
+        }
+    });
+});
+</script>
+
+
+</body>
+</html>
