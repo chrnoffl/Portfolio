@@ -428,8 +428,8 @@
                 </div>
 
                 <div id="animation-projects" class="portfolio-content hidden grid md:grid-cols-2 lg:grid-cols-2 gap-8">
-                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
-                        <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                    <div class="project-card no-hover-zoom rounded-lg shadow-lg overflow-hidden relative group">
+                        <div class="project-card no-hover-zoom rounded-lg shadow-lg overflow-hidden relative group">
                             <div class="project-card-media-container w-full h-80 relative">
                                 <video class="custom-video w-full h-full object-cover" playsinline>
                                     <source src="Game_Expo.mp4" type="video/mp4">
@@ -441,8 +441,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
-                        <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                    <div class="project-card no-hover-zoom rounded-lg shadow-lg overflow-hidden relative group">
+                        <div class="project-card no-hover-zoom rounded-lg shadow-lg overflow-hidden relative group">
                             <div class="project-card-media-container w-full h-80 relative">
                                 <video class="custom-video w-full h-full object-cover" playsinline>
                                     <source src="Mutrum_SFX.mp4" type="video/mp4">
@@ -455,12 +455,16 @@
                             </div>
                         </div>
                     </div>
-                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
-                        <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                    <div class="project-card no-hover-zoom bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                        <div class="project-card no-hover-zoom bg-white rounded-lg shadow-lg overflow-hidden relative group">
                             <div class="project-card-media-container w-full h-80 relative">
-                                <video class="custom-video w-full h-full object-cover" playsinline>
-                                    <source src="Mutrum.mp4" type="video/mp4">
-                                </video>                                
+                                <div class="w-full h-full">
+                                    <iframe class="w-full h-full object-cover" 
+                                        src="https://www.youtube.com/embed/2PZJ_tTz2oQ?playsinline=1"
+                                        title="Mutrum Video" frameborder="0"
+                                        allowfullscreen>
+                                    </iframe>
+                                </div>
                             </div>
                             <div class="p-4">
                                 <h4 class="text-2xl font-semibold mb-2 text-gray-800">Short Film Teaser (Celebration Version) </h4>
@@ -468,8 +472,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
-                        <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                    <div class="project-card no-hover-zoom bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                        <div class="project-card no-hover-zoom bg-white rounded-lg shadow-lg overflow-hidden relative group">
                             <div class="project-card-media-container w-full h-80 relative">
                                 <video class="custom-video w-full h-full object-cover" playsinline>
                                     <source src="Pooja_Celebration_CSD.mp4" type="video/mp4">
@@ -481,8 +485,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
-                        <div class="project-card bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                    <div class="project-card no-hover-zoom bg-white rounded-lg shadow-lg overflow-hidden relative group">
+                        <div class="project-card no-hover-zoom rounded-lg shadow-lg overflow-hidden relative group">
                             <div class="project-card-media-container w-full h-80 relative">
                                 <video class="custom-video w-full h-full object-cover" playsinline>
                                     <source src="Matram.mp4" type="video/mp4">
@@ -550,10 +554,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== FIX: Select all detail links that point to any details page (works for details_Safety.html etc.)
     const detailLinks = document.querySelectorAll('a[href*="details_"], a[href*="details"]');
 
-    // --- Overlay Player Elements ---
-    const videoOverlay = document.getElementById('video-overlay');
-    const overlayVideo = document.getElementById('overlay-video');
-    const overlayClose = document.getElementById('overlay-close');
 
     // --- Core Functions ---
     function showPortfolioDomain(domain) {
@@ -736,61 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const projectCards = document.querySelectorAll('.project-card');
-
-    projectCards.forEach(card => {
-        const video = card.querySelector('.custom-video');
-        const button = card.querySelector('.play-btn');
-
-        if (video) {
-            // Toggle play/pause on button
-            if (button) {
-                button.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (video.paused) {
-                        pauseAllVideos();
-                        video.play();
-                        button.textContent = '⏸';
-                    } else {
-                        video.pause();
-                        button.textContent = '▶';
-                    }
-                });
-
-                // Reset icon on video end
-                video.addEventListener('ended', () => {
-                    button.textContent = '▶';
-                });
-            }
-
-            // Click on video opens overlay
-            video.addEventListener('click', () => {
-                // prefer source src then currentSrc
-                overlayVideo.src = video.querySelector('source')?.src || video.currentSrc || '';
-                videoOverlay.classList.remove('hidden');
-                overlayVideo.play().catch(()=>{});
-                pauseAllVideos();
-                bodyElement.classList.add('no-scroll'); // standardized class
-            });
-        }
-    });
-
-    // --- Overlay Controls ---
-    overlayClose.addEventListener('click', () => {
-        overlayVideo.pause();
-        overlayVideo.src = '';
-        videoOverlay.classList.add('hidden');
-        bodyElement.classList.remove('no-scroll');
-    });
-
-    videoOverlay.addEventListener('click', (e) => {
-        if (e.target === videoOverlay) {
-            overlayVideo.pause();
-            overlayVideo.src = '';
-            videoOverlay.classList.add('hidden');
-            bodyElement.classList.remove('no-scroll');
-        }
-    });
+    
 });
 </script>
 
